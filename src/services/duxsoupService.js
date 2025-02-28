@@ -5,9 +5,8 @@ const logger = require('../utils/logger');
 
 class DuxSoupService {
   constructor() {
-    // Use the correct URL from environment variable
-    this.baseURL = process.env.DUXSOUP_REMOTE_CONTROL_URL || 'https://app.dux-soup.com/xapi/remote/control/' + process.env.DUXSOUP_USER_ID;
-    this.apiKey = config.duxsoup.apiKey;
+    this.baseURL = 'https://app.dux-soup.com/xapi';
+    this.apiKey = process.env.DUXSOUP_API_KEY;
     this.userId = process.env.DUXSOUP_USER_ID;
     this.clientId = process.env.DUXSOUP_CLIENT_ID;
   }
@@ -24,7 +23,6 @@ class DuxSoupService {
   async makeRequest(endpoint, method = 'GET', data = null) {
     try {
       const url = `${this.baseURL}${endpoint}`;
-      const timestamp = Date.now();
       
       // Prepare request options
       const options = {
@@ -37,9 +35,8 @@ class DuxSoupService {
 
       // For POST requests, include data and signature
       if (method === 'POST' && data) {
-        // Add required DuxSoup fields
         data.targeturl = url;
-        data.timestamp = timestamp;
+        data.timestamp = Date.now();
         data.userid = this.userId;
         
         options.data = data;
@@ -66,9 +63,10 @@ class DuxSoupService {
 
   async getVisits(params = {}) {
     try {
-      // Use visits endpoint
-      const response = await this.makeRequest('/visits', 'GET');
-      logger.info(`Retrieved ${response.length} visits from DuxSoup API`);
+      // Use correct visits endpoint with degree filter
+      const endpointWithParams = `/visits?degree=1&limit=100`;
+      const response = await this.makeRequest(endpointWithParams, 'GET');
+      logger.info(`Retrieved ${response.length || 0} visits from DuxSoup API`);
       return response;
     } catch (error) {
       logger.error('Error fetching visits from DuxSoup API', { error: error.message });
@@ -89,19 +87,33 @@ class DuxSoupService {
 
   async getFirstDegreeConnections() {
     try {
-      // LinkedIn Activity API - Command to visit 1st degree connections
-      const data = {
-        command: 'visit',
-        params: {
-          degree: 1
-        }
-      };
-      
-      const response = await this.makeRequest('', 'POST', data);
-      logger.info(`Retrieved ${response.length || 0} first-degree connections`);
-      return response;
+      // Get 1st degree connections from visits endpoint
+      return await this.getVisits({ degree: 1 });
     } catch (error) {
       logger.error('Error fetching first-degree connections', { error: error.message });
+      throw error;
+    }
+  }
+
+  // Add other useful methods based on docs
+  async queueSize() {
+    try {
+      const response = await this.makeRequest(`/remote/control/${this.userId}/queue/size`, 'GET');
+      logger.info(`Queue size: ${response.size || 0}`);
+      return response;
+    } catch (error) {
+      logger.error('Error fetching queue size', { error: error.message });
+      throw error;
+    }
+  }
+
+  async queueItems() {
+    try {
+      const response = await this.makeRequest(`/remote/control/${this.userId}/queue/items`, 'GET');
+      logger.info(`Queue items: ${response.length || 0}`);
+      return response;
+    } catch (error) {
+      logger.error('Error fetching queue items', { error: error.message });
       throw error;
     }
   }
