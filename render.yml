@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: duxsoup-etl
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node src/index.js
+    healthCheckPath: /health
+    healthCheckTimeout: 5
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGO_URI
+        sync: false
+      - key: MONGO_CLUSTER_NAME
+        sync: false
+      - key: MONGO_DB_NAME
+        sync: false
+      - key: MONGO_COLLECTION_NAME
+        sync: false
+      - key: DUXSOUP_API_KEY
+        sync: false
+      - key: DUXSOUP_CLIENT_ID
+        sync: false
+      - key: DUXSOUP_USER_ID
+        sync: false
+      - key: DUXSOUP_REMOTE_CONTROL_URL
+        sync: false
+      - key: FETCH_INTERVAL
+        value: "3600000"

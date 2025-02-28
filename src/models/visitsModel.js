@@ -1,8 +1,9 @@
+// src/models/visitsModel.js
 const mongoose = require('mongoose');
 const config = require('../config');
+const logger = require('../utils/logger');
 
 // Create a schema that automatically matches all possible DuxSoup fields
-// This is a more flexible approach than strictly defining each field
 const visitsSchema = new mongoose.Schema({
   // Required fields
   id: { type: String, required: true, unique: true },
@@ -93,15 +94,7 @@ visitsSchema.pre('save', function(next) {
   next();
 });
 
-// Initialize MongoDB connection
-mongoose.connect(config.mongo.uri, {
-  dbName: config.mongo.dbName
-}).then(() => {
-  console.log('Connected to MongoDB Atlas');
-}).catch(err => {
-  console.error('MongoDB connection error:', err);
-  process.exit(1);
-});
+// REMOVED duplicate MongoDB connection - now only in index.js
 
 // Create and export the model
 const Visit = mongoose.model('Visit', visitsSchema, config.mongo.collectionName);
