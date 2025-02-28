@@ -7,8 +7,13 @@ const VISIT_DELAY_MS = 5000;  // 5-second delay between profile visits
 
 // Helper function: Check if collection exists
 const collectionExists = async (model) => {
-  const collections = await model.db.db.listCollections().toArray();
-  return collections.some(col => col.name === model.collection.name);
+  try {
+    const collections = await model.db.connection.db.listCollections().toArray();
+    return collections.some(col => col.name === model.collection.name);
+  } catch (error) {
+    logger.warn("Could not check collections list, assuming it exists", { error: error.message });
+    return true; // Assume it exists to prevent blocking the process
+  }
 };
 
 class VisitsController {
@@ -28,11 +33,12 @@ class VisitsController {
       today.setUTCHours(0, 0, 0, 0);
 
       // Count visits for today (limit execution time)
-      let todayVisitCount;
+      let todayVisitCount = 0;
       try {
-        todayVisitCount = await Visit.countDocuments({ VisitTime: { $gte: today } }).maxTimeMS(5000);
+        const existingData = await Visit.findOne({ VisitTime: { $gte: today } });
+        todayVisitCount = existingData ? await Visit.countDocuments({ VisitTime: { $gte: today } }).maxTimeMS(5000) : 0;
       } catch (error) {
-        logger.error("Timeout while counting documents", { error: error.message });
+        logger.error("Timeout while counting visits", { error: error.message });
         return { error: "Timeout while counting visits" };
       }
 
@@ -46,7 +52,7 @@ class VisitsController {
       logger.info(`Retrieved ${connections.length} first-degree connections`);
 
       if (!connections.length) {
-        logger.info('No connections found to process');
+        logger.warn('No connections found from DuxSoup. Possible API issue.');
         return { added: 0, updated: 0, failed: 0 };
       }
 
@@ -65,6 +71,7 @@ class VisitsController {
           for (let retry = 0; retry < 3; retry++) {
             try {
               profileData = await duxsoupService.getVisitDetails(connection.id);
+              if (!profileData || !profileData.id) throw new Error("Empty profile data");
               break;
             } catch (error) {
               logger.warn(`Retrying fetch for profile ${connection.id}, attempt ${retry + 1}`);
