@@ -5,19 +5,36 @@ const logger = require('../utils/logger');
 const MAX_DAILY_VISITS = 100; // Limit to 100 profile visits per day
 const VISIT_DELAY_MS = 5000;  // 5-second delay between profile visits
 
+// Helper function: Check if collection exists
+const collectionExists = async (model) => {
+  const collections = await model.db.db.listCollections().toArray();
+  return collections.some(col => col.name === model.collection.name);
+};
+
 class VisitsController {
   async fetchAndStoreFirstDegreeConnections() {
     try {
       logger.info('Starting fetch of first-degree connections');
 
+      // Ensure 'visits' collection exists
+      const collectionFound = await collectionExists(Visit);
+      if (!collectionFound) {
+        logger.error("MongoDB collection 'visits' does not exist. Skipping fetch.");
+        return { error: "Collection 'visits' does not exist" };
+      }
+
       // Get today's date (UTC)
       const today = new Date();
       today.setUTCHours(0, 0, 0, 0);
 
-      // Count visits for today
-      const todayVisitCount = await Visit.countDocuments({
-        VisitTime: { $gte: today } // Fetch visits from today onwards
-      });
+      // Count visits for today (limit execution time)
+      let todayVisitCount;
+      try {
+        todayVisitCount = await Visit.countDocuments({ VisitTime: { $gte: today } }).maxTimeMS(5000);
+      } catch (error) {
+        logger.error("Timeout while counting documents", { error: error.message });
+        return { error: "Timeout while counting visits" };
+      }
 
       if (todayVisitCount >= MAX_DAILY_VISITS) {
         logger.info(`Daily visit limit reached: ${todayVisitCount}/${MAX_DAILY_VISITS}`);
@@ -43,8 +60,17 @@ class VisitsController {
         }
 
         try {
-          // Get detailed profile data for each connection
-          const profileData = await duxsoupService.getVisitDetails(connection.id);
+          // Get detailed profile data for each connection (with retry)
+          let profileData;
+          for (let retry = 0; retry < 3; retry++) {
+            try {
+              profileData = await duxsoupService.getVisitDetails(connection.id);
+              break;
+            } catch (error) {
+              logger.warn(`Retrying fetch for profile ${connection.id}, attempt ${retry + 1}`);
+              if (retry === 2) throw error;
+            }
+          }
 
           // Check if this profile already exists in our database
           const existingVisit = await Visit.findOne({ id: profileData.id });
