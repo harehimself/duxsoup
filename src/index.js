@@ -2,6 +2,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const config = require('./config');
+const webhookController = require('./controllers/webhookController');
 const logger = require('./utils/logger');
 
 // Initialize Express app
@@ -11,42 +12,31 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(express.json());
 
-// Controllers (import after app initialization)
-let visitsController;
-
-// Health check endpoint - CRITICAL for Render
-// Return healthy immediately, don't wait for DB connection
+// Health check endpoint
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok', timestamp: new Date() });
 });
 
-// API routes - initialized after DB connection
-const initializeRoutes = () => {
-  // Import controller now that DB is connected
-  visitsController = require('./controllers/visitsController');
-  
-  // Manual trigger endpoint
-  app.post('/api/fetch', async (req, res) => {
-    try {
-      const result = await visitsController.fetchAndStoreFirstDegreeConnections();
-      res.status(200).json(result);
-    } catch (error) {
-      logger.error('Error in manual fetch', { error: error.message });
-      res.status(500).json({ error: error.message });
-    }
-  });
+// Webhook endpoint for DuxSoup events
+app.post('/api/webhook', async (req, res) => {
+  try {
+    await webhookController.processDuxSoupWebhook(req, res);
+  } catch (error) {
+    logger.error('Error in webhook endpoint', { error: error.message });
+    res.status(500).json({ error: error.message });
+  }
+});
 
-  // Get stored visits endpoint
-  app.get('/api/visits', async (req, res) => {
-    try {
-      const visits = await visitsController.getStoredVisits();
-      res.status(200).json(visits);
-    } catch (error) {
-      logger.error('Error fetching visits', { error: error.message });
-      res.status(500).json({ error: error.message });
-    }
-  });
-};
+// Get stored visits endpoint
+app.get('/api/visits', async (req, res) => {
+  try {
+    const visits = await webhookController.getStoredVisits();
+    res.status(200).json(visits);
+  } catch (error) {
+    logger.error('Error fetching visits', { error: error.message });
+    res.status(500).json({ error: error.message });
+  }
+});
 
 // MongoDB connection
 const connectDB = async () => {
@@ -64,38 +54,12 @@ const connectDB = async () => {
   }
 };
 
-// Schedule the periodic data fetch
-const startPeriodicFetch = () => {
-  const interval = config.app.fetchInterval;
-  logger.info(`Setting up periodic fetch every ${interval}ms`);
-
-  // Initial fetch
-  setTimeout(async () => {
-    try {
-      const result = await visitsController.fetchAndStoreFirstDegreeConnections();
-      logger.info('Initial fetch completed', { result });
-    } catch (error) {
-      logger.error('Initial fetch error', { error: error.message });
-    }
-  }, 10000); // Delay initial fetch by 10 seconds
-
-  // Scheduled fetches
-  setInterval(async () => {
-    try {
-      const result = await visitsController.fetchAndStoreFirstDegreeConnections();
-      logger.info('Scheduled fetch completed', { result });
-    } catch (error) {
-      logger.error('Scheduled fetch error', { error: error.message });
-    }
-  }, interval);
-};
-
 // Start the server immediately to pass health checks
 const server = app.listen(PORT, () => {
   logger.info(`Server started on port ${PORT}`);
 });
 
-// Connect to DB and initialize routes in background
+// Connect to DB in background
 (async () => {
   let connected = false;
   
@@ -113,12 +77,10 @@ const server = app.listen(PORT, () => {
     }
   }
   
-  if (connected) {
-    initializeRoutes();
-    startPeriodicFetch();
-  } else {
+  if (!connected) {
     logger.error("Failed to connect to MongoDB after multiple attempts");
-    // Keep server running - will attempt reconnection on API calls
+  } else {
+    logger.info("Ready to receive webhook data from DuxSoup");
   }
 })();
 
