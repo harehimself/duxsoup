@@ -8,7 +8,9 @@ module.exports = {
   },
   duxsoup: {
     apiKey: process.env.DUXSOUP_API_KEY,
-    baseUrl: 'https://api.duxsoup.com/v1'
+    userId: process.env.DUXSOUP_USER_ID,
+    clientId: process.env.DUXSOUP_CLIENT_ID,
+    remoteControlUrl: process.env.DUXSOUP_REMOTE_CONTROL_URL
   },
   app: {
     fetchInterval: parseInt(process.env.FETCH_INTERVAL) || 3600000 // Default 1 hour
