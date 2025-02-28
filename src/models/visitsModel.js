@@ -1,7 +1,5 @@
-// src/models/visitsModel.js
 const mongoose = require('mongoose');
 const config = require('../config');
-const logger = require('../utils/logger');
 
 // Create a schema that automatically matches all possible DuxSoup fields
 const visitsSchema = new mongoose.Schema({
@@ -9,7 +7,7 @@ const visitsSchema = new mongoose.Schema({
   id: { type: String, required: true, unique: true },
   VisitTime: { type: Date, required: true },
   Profile: { type: String, required: true },
-  SalesProfile: { type: String, required: true },
+  SalesProfile: { type: String, required: false }, // Changed to false
   Degree: { type: String, required: true },
   'First Name': { type: String, required: true },
   
@@ -93,8 +91,6 @@ visitsSchema.pre('save', function(next) {
   
   next();
 });
-
-// REMOVED duplicate MongoDB connection - now only in index.js
 
 // Create and export the model
 const Visit = mongoose.model('Visit', visitsSchema, config.mongo.collectionName);
