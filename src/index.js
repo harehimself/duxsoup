@@ -38,8 +38,8 @@ app.get('/api/visits', async (req, res) => {
   }
 });
 
-// MongoDB connection
-const MONGO_URI = process.env.MONGO_URI || "mongodb+srv://harelabs:cSajLWWmSpsbCPOx@linkedin-etl.xkw5e.mongodb.net/duxsoup?retryWrites=true&w=majority";
+// MongoDB connection (Non-SRV format)
+const MONGO_URI = process.env.MONGO_URI || "mongodb://harelabs:cSajLWWmSpsbCPOx@linkedin-etl-shard-00-00.xkw5e.mongodb.net:27017,linkedin-etl-shard-00-01.xkw5e.mongodb.net:27017,linkedin-etl-shard-00-02.xkw5e.mongodb.net:27017/duxsoup?authSource=admin&replicaSet=atlas-cv8dsn-shard-0&retryWrites=true&w=majority";
 
 const connectDB = async () => {
   try {
@@ -50,7 +50,7 @@ const connectDB = async () => {
     logger.info("MongoDB connected successfully");
   } catch (error) {
     logger.error("MongoDB connection error", { error: error.message });
-    process.exit(1); // Exit process if connection fails
+    process.exit(1);
   }
 };
 
@@ -70,7 +70,6 @@ const startServer = async () => {
 const startPeriodicFetch = () => {
   logger.info(`Setting up periodic fetch every ${config.app.fetchInterval}ms`);
 
-  // Immediately perform the first fetch
   visitsController.fetchAndStoreFirstDegreeConnections()
     .then(result => {
       logger.info('Initial fetch completed', { result });
@@ -79,7 +78,6 @@ const startPeriodicFetch = () => {
       logger.error('Error in initial fetch', { error: error.message });
     });
 
-  // Set up the interval for subsequent fetches
   setInterval(async () => {
     try {
       const result = await visitsController.fetchAndStoreFirstDegreeConnections();
@@ -95,7 +93,6 @@ process.on('uncaughtException', (error) => {
   logger.error('Uncaught exception', { error: error.message });
 });
 
-// Handle unhandled promise rejections
 process.on('unhandledRejection', (reason, promise) => {
   logger.error('Unhandled promise rejection', { reason });
 });
