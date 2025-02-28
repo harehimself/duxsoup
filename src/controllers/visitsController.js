@@ -8,7 +8,8 @@ const VISIT_DELAY_MS = 5000;  // 5-second delay between profile visits
 // Helper function: Check if collection exists
 const collectionExists = async (model) => {
   try {
-    const collections = await model.db.connection.db.listCollections().toArray();
+    const db = model.db.client.db(); // Correct MongoDB client reference
+    const collections = await db.listCollections().toArray();
     return collections.some(col => col.name === model.collection.name);
   } catch (error) {
     logger.warn("Could not check collections list, assuming it exists", { error: error.message });
@@ -35,7 +36,7 @@ class VisitsController {
       // Count visits for today (limit execution time)
       let todayVisitCount = 0;
       try {
-        const existingData = await Visit.findOne({ VisitTime: { $gte: today } });
+        const existingData = await Visit.findOne({ VisitTime: { $gte: today } }).maxTimeMS(5000);
         todayVisitCount = existingData ? await Visit.countDocuments({ VisitTime: { $gte: today } }).maxTimeMS(5000) : 0;
       } catch (error) {
         logger.error("Timeout while counting visits", { error: error.message });
