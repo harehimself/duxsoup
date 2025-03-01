@@ -8,15 +8,38 @@ const scansSchema = new mongoose.Schema({
   ScanTime: { type: Date, required: true },
   Profile: { type: String, required: true },
   'First Name': { type: String, required: true },
-  'Middle Name': { type: String },
   'Last Name': { type: String, required: true },
+  
+  // Optional fields that may be present in scan data
+  'Middle Name': { type: String },
+  Title: { type: String },
   SalesProfile: { type: String },
   PublicProfile: { type: String },
-  Title: { type: String },
   Industry: { type: String },
   Company: { type: String },
   CompanyID: { type: String },
   Location: { type: String },
+  Thumbnail: { type: String },
+  
+  // Structured data containers
+  positions: [{ 
+    company: String,
+    location: String,
+    title: String,
+    description: String,
+    from: String,
+    to: String
+  }],
+  
+  schools: [{
+    name: String,
+    degree: String,
+    field: String,
+    from: String,
+    to: String
+  }],
+  
+  skills: [String],
   
   // All other fields are optional and will be dynamically added
 }, { 
