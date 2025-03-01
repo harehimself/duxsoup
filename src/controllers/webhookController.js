@@ -1,5 +1,7 @@
 // src/controllers/webhookController.js
 const Visit = require('../models/visitsModel');
+const Scan = require('../models/scansModel');
+const scansController = require('./scansController');
 const logger = require('../utils/logger');
 
 class WebhookController {
@@ -82,20 +84,9 @@ class WebhookController {
 
       logger.info(`Processing scan data for profile: ${data.id}`);
       
-      // Check if profile already exists
-      const existingVisit = await Visit.findOne({ id: data.id });
-
-      if (existingVisit) {
-        // Update existing record with scan data
-        Object.assign(existingVisit, data);
-        await existingVisit.save();
-        logger.info(`Updated existing profile with scan data: ${data.id}`);
-      } else {
-        // Create new record
-        const visit = new Visit({ ...data, VisitTime: new Date(data.ScanTime) });
-        await visit.save();
-        logger.info(`Added new profile from scan webhook: ${data.id}`);
-      }
+      // Use the scansController to process scan data
+      await scansController.processScans(data);
+      
     } catch (error) {
       logger.error('Error processing scan event', { error: error.message });
       throw error;
@@ -111,6 +102,19 @@ class WebhookController {
       return visits;
     } catch (error) {
       logger.error('Error fetching stored visits', { error: error.message });
+      throw error;
+    }
+  }
+  
+  /**
+   * Get all stored scans (for API endpoint)
+   */
+  async getStoredScans(query = {}) {
+    try {
+      const scans = await Scan.find(query).lean();
+      return scans;
+    } catch (error) {
+      logger.error('Error fetching stored scans', { error: error.message });
       throw error;
     }
   }
