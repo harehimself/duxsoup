@@ -3,6 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const config = require('./config');
 const webhookController = require('./controllers/webhookController');
+const queueController = require('./controllers/queueController');
 const logger = require('./utils/logger');
 
 // Initialize Express app
@@ -37,6 +38,27 @@ app.get('/api/visits', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+// Get stored scans endpoint
+app.get('/api/scans', async (req, res) => {
+  try {
+    const scans = await webhookController.getStoredScans();
+    res.status(200).json(scans);
+  } catch (error) {
+    logger.error('Error fetching scans', { error: error.message });
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Queue management endpoints
+app.get('/api/queue/status', queueController.getQueueStatus);
+app.get('/api/queue/items', queueController.getQueuedItems);
+app.post('/api/queue/clear', queueController.clearQueue);
+app.post('/api/queue/visit', queueController.queueVisit);
+app.post('/api/queue/batch', queueController.queueBatchVisits);
+app.post('/api/queue/all', queueController.queueAllProfiles);
+app.post('/api/queue/connect', queueController.queueConnect);
+app.post('/api/queue/message', queueController.queueMessage);
 
 // MongoDB connection
 const connectDB = async () => {
