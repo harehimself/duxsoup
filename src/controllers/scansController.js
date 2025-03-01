@@ -1,7 +1,7 @@
 const Scan = require('../models/scansModel');
 const logger = require('../utils/logger');
 
-const MAX_DAILY_SCANS = 1000; // Limit to 1000 profile scans per day
+const MAX_DAILY_SCANS = 3000; // Higher limit for scans since the documentation mentions scanning is faster (about 6 pages per minute)
 const SCAN_DELAY_MS = 3000;  // 3-second delay between profile scans
 
 // Helper function: Check if collection exists
