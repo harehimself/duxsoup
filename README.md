@@ -6,16 +6,12 @@
 DuxSoup ETL System
 ==================
 
-A fully automated, webhook-driven ETL pipeline that integrates with the DuxSoup API to extract, normalize, and store detailed LinkedIn profile data into MongoDB Atlas.<br/> Engineered for data enthusiasts and LinkedIn automation, it provides real-time insights by seamlessly processing profile information.
-
-[](https://nodejs.org/)\
-[](https://www.mongodb.com/)
+A fully automated, webhook-driven ETL pipeline that integrates with the DuxSoup API to extract, normalize, and store detailed LinkedIn profile data into MongoDB Atlas. Engineered for automation, the project delivers extensive data and us a great starter for those looking to better understand their professional network.
 
 
 **↘  Share the Project  ↙**\
-[](https://twitter.com/intent/tweet?url=https://github.com/harehimself/duxsoup)
+https://github.com/harehimself/duxsoup
 
-[](https://www.reddit.com/submit?url=https://github.com/harehimself/duxsoup)
 
 </div>
 
