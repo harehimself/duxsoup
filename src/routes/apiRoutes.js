@@ -5,6 +5,7 @@ const webhookController = require('../controllers/webhookController');
 const visitsController = require('../controllers/visitsController');
 const scansController = require('../controllers/scansController');
 const queueController = require('../controllers/queueController');
+const analysisController = require('../controllers/analysisController');
 
 // Note: Main webhook endpoint is now defined directly in index.js
 // This route is kept for backward compatibility
@@ -29,6 +30,15 @@ router.get('/scans', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+// Analysis endpoints
+router.get('/analysis/company/:company', analysisController.getCompanyConnections);
+router.get('/analysis/timing', analysisController.getConnectionTiming);
+router.get('/analysis/rising-leaders', analysisController.getRisingLeaders);
+router.get('/analysis/geography', analysisController.getGeographicDistribution);
+router.get('/analysis/education', analysisController.getEducationPatterns);
+router.get('/analysis/seniority', analysisController.getSeniorityDistribution);
+router.get('/analysis/industries', analysisController.getIndustryDomains);
 
 // Queue management endpoints
 router.get('/queue/status', queueController.getQueueStatus);
