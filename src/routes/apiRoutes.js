@@ -6,7 +6,8 @@ const visitsController = require('../controllers/visitsController');
 const scansController = require('../controllers/scansController');
 const queueController = require('../controllers/queueController');
 
-// Webhook endpoint for DuxSoup
+// Note: Main webhook endpoint is now defined directly in index.js
+// This route is kept for backward compatibility
 router.post('/webhook/duxsoup', webhookController.processDuxSoupWebhook);
 
 // Visits API endpoints

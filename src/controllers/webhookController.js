@@ -10,10 +10,22 @@ class WebhookController {
   async processDuxSoupWebhook(req, res) {
     try {
       const webhookData = req.body;
+      
+      // Log the full webhook data to help with debugging
       logger.info('Received webhook data from DuxSoup', { 
-        type: webhookData.type,
-        event: webhookData.event
+        endpoint: req.originalUrl,
+        method: req.method,
+        data: webhookData
       });
+
+      // Validate webhook data
+      if (!webhookData || (!webhookData.type && !webhookData.event)) {
+        logger.warn('Invalid webhook data received', { body: webhookData });
+        return res.status(400).json({ 
+          status: 'error', 
+          message: 'Invalid webhook data format' 
+        });
+      }
 
       // Handle different webhook event types
       if (webhookData.type === 'visit') {
@@ -21,14 +33,23 @@ class WebhookController {
       } else if (webhookData.type === 'scan') {
         await this.processScanEvent(webhookData);
       } else {
-        logger.info(`Unhandled webhook event type: ${webhookData.type}`);
+        logger.info(`Unhandled webhook event type: ${webhookData.type || 'unknown'}`);
       }
 
       // Acknowledge receipt
-      return res.status(200).json({ status: 'success' });
+      return res.status(200).json({ 
+        status: 'success',
+        message: 'Webhook processed successfully'
+      });
     } catch (error) {
-      logger.error('Error processing webhook', { error: error.message });
-      return res.status(500).json({ error: error.message });
+      logger.error('Error processing webhook', { 
+        error: error.message,
+        stack: error.stack
+      });
+      return res.status(500).json({ 
+        status: 'error',
+        message: error.message 
+      });
     }
   }
 
@@ -41,30 +62,44 @@ class WebhookController {
       
       // Only process create and update events
       if (event !== 'create' && event !== 'update') {
+        logger.info(`Ignoring visit event type: ${event}`);
         return;
       }
 
-      // For update events, we're getting complete profile data
-      if (event === 'update') {
-        logger.info(`Processing visit update for profile: ${data.id}`);
-        
-        // Check if profile already exists
-        const existingVisit = await Visit.findOne({ id: data.id });
+      // Additional validation
+      if (!data || !data.id) {
+        logger.warn('Visit event missing required data fields', { data });
+        return;
+      }
 
-        if (existingVisit) {
-          // Update existing record
-          Object.assign(existingVisit, data);
-          await existingVisit.save();
-          logger.info(`Updated existing profile: ${data.id}`);
-        } else {
-          // Create new record
-          const visit = new Visit({ ...data, VisitTime: new Date(data.VisitTime) });
-          await visit.save();
-          logger.info(`Added new profile from webhook: ${data.id}`);
-        }
+      logger.info(`Processing visit ${event} for profile: ${data.id}`);
+      
+      // Check if profile already exists
+      const existingVisit = await Visit.findOne({ id: data.id });
+
+      if (existingVisit) {
+        // Update existing record
+        Object.assign(existingVisit, data);
+        existingVisit.VisitTime = new Date(data.VisitTime || existingVisit.VisitTime);
+        await existingVisit.save();
+        logger.info(`Updated existing profile: ${data.id}`);
+      } else {
+        // Create new record
+        const visitData = {
+          ...data,
+          VisitTime: new Date(data.VisitTime || new Date())
+        };
+        
+        const visit = new Visit(visitData);
+        await visit.save();
+        logger.info(`Added new profile from webhook: ${data.id}`);
       }
     } catch (error) {
-      logger.error('Error processing visit event', { error: error.message });
+      logger.error('Error processing visit event', { 
+        error: error.message,
+        stack: error.stack,
+        data: webhookData?.data?.id 
+      });
       throw error;
     }
   }
@@ -76,8 +111,9 @@ class WebhookController {
     try {
       const { event, data } = webhookData;
       
-      // Only process create events for scans
-      if (event !== 'create') {
+      // Additional validation
+      if (!data || !data.id) {
+        logger.warn('Scan event missing required data fields', { data });
         return;
       }
 
@@ -87,7 +123,11 @@ class WebhookController {
       await scansController.processScans(data);
       
     } catch (error) {
-      logger.error('Error processing scan event', { error: error.message });
+      logger.error('Error processing scan event', { 
+        error: error.message,
+        stack: error.stack,
+        data: webhookData?.data?.id
+      });
       throw error;
     }
   }

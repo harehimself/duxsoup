@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const config = require('../config');
 const apiRoutes = require('./routes/apiRoutes');
 const logger = require('./utils/logger');
+const webhookController = require('./controllers/webhookController');
 
 // Initialize Express app
 const app = express();
@@ -12,10 +13,22 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(express.json());
 
+// Log all requests
+app.use((req, res, next) => {
+  logger.info(`${req.method} ${req.url}`, { 
+    headers: req.headers,
+    body: Object.keys(req.body).length > 0 ? req.body : undefined
+  });
+  next();
+});
+
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok', timestamp: new Date() });
 });
+
+// Direct webhook endpoint to match DuxSoup configuration
+app.post('/api/webhook', webhookController.processDuxSoupWebhook);
 
 // API Routes
 app.use('/api', apiRoutes);
