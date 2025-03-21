@@ -1,6 +1,5 @@
 // src/controllers/webhookController.js
 const Visit = require('../models/visitsModel');
-const Scan = require('../models/scansModel');
 const scansController = require('./scansController');
 const logger = require('../utils/logger');
 
@@ -89,32 +88,6 @@ class WebhookController {
       
     } catch (error) {
       logger.error('Error processing scan event', { error: error.message });
-      throw error;
-    }
-  }
-
-  /**
-   * Get all stored visits (for API endpoint)
-   */
-  async getStoredVisits(query = {}) {
-    try {
-      const visits = await Visit.find(query).lean();
-      return visits;
-    } catch (error) {
-      logger.error('Error fetching stored visits', { error: error.message });
-      throw error;
-    }
-  }
-  
-  /**
-   * Get all stored scans (for API endpoint)
-   */
-  async getStoredScans(query = {}) {
-    try {
-      const scans = await Scan.find(query).lean();
-      return scans;
-    } catch (error) {
-      logger.error('Error fetching stored scans', { error: error.message });
       throw error;
     }
   }

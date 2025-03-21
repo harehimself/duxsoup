@@ -1,20 +1,6 @@
 const Scan = require('../models/scansModel');
 const logger = require('../utils/logger');
-
-const MAX_DAILY_SCANS = 3000; // Higher limit for scans since the documentation mentions scanning is faster (about 6 pages per minute)
-const SCAN_DELAY_MS = 3000;  // 3-second delay between profile scans
-
-// Helper function: Check if collection exists
-const collectionExists = async (model) => {
-  try {
-    const db = model.db.client.db(); // Correct MongoDB client reference
-    const collections = await db.listCollections().toArray();
-    return collections.some(col => col.name === model.collection.name);
-  } catch (error) {
-    logger.warn("Could not check collections list, assuming it exists", { error: error.message });
-    return true; // Assume it exists to prevent blocking the process
-  }
-};
+const { collectionExists } = require('../utils/collectionUtils');
 
 class ScansController {
   async processScans(scanData) {

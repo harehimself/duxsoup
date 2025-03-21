@@ -2,8 +2,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const config = require('./config');
-const webhookController = require('./controllers/webhookController');
-const queueController = require('./controllers/queueController');
+const apiRoutes = require('./routes/apiRoutes');
 const logger = require('./utils/logger');
 
 // Initialize Express app
@@ -18,47 +17,8 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok', timestamp: new Date() });
 });
 
-// Webhook endpoint for DuxSoup events
-app.post('/api/webhook', async (req, res) => {
-  try {
-    await webhookController.processDuxSoupWebhook(req, res);
-  } catch (error) {
-    logger.error('Error in webhook endpoint', { error: error.message });
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// Get stored visits endpoint
-app.get('/api/visits', async (req, res) => {
-  try {
-    const visits = await webhookController.getStoredVisits();
-    res.status(200).json(visits);
-  } catch (error) {
-    logger.error('Error fetching visits', { error: error.message });
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// Get stored scans endpoint
-app.get('/api/scans', async (req, res) => {
-  try {
-    const scans = await webhookController.getStoredScans();
-    res.status(200).json(scans);
-  } catch (error) {
-    logger.error('Error fetching scans', { error: error.message });
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// Queue management endpoints
-app.get('/api/queue/status', queueController.getQueueStatus);
-app.get('/api/queue/items', queueController.getQueuedItems);
-app.post('/api/queue/clear', queueController.clearQueue);
-app.post('/api/queue/visit', queueController.queueVisit);
-app.post('/api/queue/batch', queueController.queueBatchVisits);
-app.post('/api/queue/all', queueController.queueAllProfiles);
-app.post('/api/queue/connect', queueController.queueConnect);
-app.post('/api/queue/message', queueController.queueMessage);
+// API Routes
+app.use('/api', apiRoutes);
 
 // MongoDB connection
 const connectDB = async () => {

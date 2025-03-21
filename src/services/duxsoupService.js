@@ -264,7 +264,7 @@ class DuxSoupService {
       // Add a delay between batches to avoid overwhelming the API
       if (i + batchSize < total) {
         logger.info(`Waiting 2 seconds before next batch...`);
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        await new Promise(resolve => setTimeout(resolve, delay));
       }
     }
     
@@ -279,60 +279,6 @@ class DuxSoupService {
       failed: failureCount,
       details: results
     };
-  }
-
-  /**
-   * Get detailed profile information for a LinkedIn profile ID
-   * This is a placeholder - implement actual API if available
-   * @param {string} profileId - LinkedIn profile ID
-   * @returns {Promise<Object>} - Profile details
-   */
-  async getVisitDetails(profileId) {
-    // Note: This is a placeholder for the actual implementation
-    // The Dux-Soup API documentation doesn't explicitly mention an endpoint for this
-    logger.info(`Getting visit details for profile ${profileId}`);
-    
-    // Return mock data for now
-    return {
-      id: profileId,
-      VisitTime: new Date().toISOString(),
-      // Other fields would be populated from the actual API
-    };
-  }
-
-  /**
-   * Get scan details for a LinkedIn profile ID
-   * This is a placeholder - implement actual API if available
-   * @param {string} profileId - LinkedIn profile ID
-   * @returns {Promise<Object>} - Scan details
-   */
-  async getScanDetails(profileId) {
-    // Note: This is a placeholder for the actual implementation
-    // The Dux-Soup API documentation doesn't explicitly mention an endpoint for this
-    logger.info(`Getting scan details for profile ${profileId}`);
-    
-    // Return mock data for now
-    return {
-      id: profileId,
-      ScanTime: new Date().toISOString(),
-      // Other fields would be populated from the actual API
-    };
-  }
-
-  /**
-   * Get first-degree connections
-   * This is a placeholder - implement actual API if available
-   * @returns {Promise<Array>} - List of connections
-   */
-  async getFirstDegreeConnections() {
-    // Note: This is a placeholder for the actual implementation
-    logger.info('Getting first-degree connections');
-    
-    // Return mock data for now
-    return [
-      { id: 'id.12345', name: 'John Doe' },
-      { id: 'id.67890', name: 'Jane Smith' },
-    ];
   }
 }
 
