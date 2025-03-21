@@ -1,7 +1,7 @@
 // src/services/duxsoupService.js
 const crypto = require('crypto');
 const axios = require('axios');
-const config = require('../config');
+const config = require('../../config');
 const logger = require('../utils/logger');
 
 class DuxSoupService {

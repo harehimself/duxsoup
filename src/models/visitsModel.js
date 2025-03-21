@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const config = require('../config');
+const config = require('../../config');
 
 // Create a schema that automatically matches all possible DuxSoup fields
 const visitsSchema = new mongoose.Schema({

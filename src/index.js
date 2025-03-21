@@ -1,7 +1,7 @@
 // src/index.js
 const express = require('express');
 const mongoose = require('mongoose');
-const config = require('../config');
+const config = require('../../config');
 const apiRoutes = require('./routes/apiRoutes');
 const logger = require('./utils/logger');
 

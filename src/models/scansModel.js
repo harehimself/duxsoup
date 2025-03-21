@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const config = require('../config');
+const config = require('../../config');
 
 // Create a schema for scan events
 const scansSchema = new mongoose.Schema({
