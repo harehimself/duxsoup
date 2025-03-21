@@ -11,15 +11,11 @@ A fully automated, webhook-driven ETL pipeline that integrates with the DuxSoup 
 [](https://nodejs.org/)\
 [](https://www.mongodb.com/)
 
-**↘  Official Documentation  ↙**\
-English - Español
 
-**↘  Share the project's link  ↙**\
-[](https://twitter.com/intent/tweet?url=https://example.com)
+**↘  Share the Project  ↙**\
+[](https://twitter.com/intent/tweet?url=https://github.com/harehimself/duxsoup)
 
-[](https://www.reddit.com/submit?url=https://example.com)
-
-<a href="https://example.com" target="_blank" title="DuxSoup ETL System"><img width="99%" alt="DuxSoup ETL system workflow" src="https://raw.githubusercontent.com/duxsoup/ETL/overview.gif"></a>
+[](https://www.reddit.com/submit?url=https://github.com/harehimself/duxsoup)
 
 </div>
 
