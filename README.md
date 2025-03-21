@@ -1,6 +1,5 @@
 <div align="center">
-
-<a href="https://example.com" target="_blank" title="DuxSoup ETL System"><img width="196px" alt="DuxSoup ETL logo" src="https://raw.githubusercontent.com/duxsoup/ETL/logo.png"></a>
+<a href="https://example.com" target="_blank" title="DuxSoup ETL System"><img width="196px" alt="DuxSoup ETL logo" src="https://github.com/harehimself/duxsoup/blob/dc091a1d78c2ec71613fd9f7a3fa4f5960699622/duxsoup.png"></a>
 
 <a name="readme-top"></a>
 
