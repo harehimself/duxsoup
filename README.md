@@ -6,7 +6,7 @@
 DuxSoup ETL System
 ==================
 
-A fully automated, webhook-driven ETL pipeline that integrates with the DuxSoup API to extract, normalize, and store detailed LinkedIn profile data into MongoDB Atlas. Engineered for automation, the project delivers extensive data and us a great starter for those looking to better understand their professional network.
+A fully automated, webhook-driven ETL pipeline that integrates with the DuxSoup API to extract, normalize, and store detailed LinkedIn profile data into MongoDB Atlas. Engineered for automation, the project delivers extensive data and acts as a great starter project for those looking to better understand professional networks.
 
 
 **↘  Share the Project  ↙**\
@@ -14,6 +14,8 @@ https://github.com/harehimself/duxsoup
 
 
 </div>
+
+
 
 ✨ Features
 ----------
@@ -26,7 +28,9 @@ https://github.com/harehimself/duxsoup
 -   **Cloud-Based Storage**: Leverages MongoDB Atlas and Mongoose for scalable, secure data management.
 -   **Robust Logging**: Integrated Winston logging for comprehensive monitoring and troubleshooting.
 
-🚀 Overview
+
+
+Overview
 -----------
 
 The DuxSoup ETL System streamlines the data extraction process from LinkedIn by integrating with the DuxSoup browser extension. Here's how it works:
@@ -51,7 +55,9 @@ The DuxSoup ETL System streamlines the data extraction process from LinkedIn by 
 
 This design ensures that your LinkedIn data is always ready for deep analysis and rapid insights.
 
-⚙️ How It Works
+
+
+How It Works
 ---------------
 
 -   **Data Extraction**:\
@@ -71,6 +77,8 @@ This design ensures that your LinkedIn data is always ready for deep analysis an
 -   **Continuous Monitoring**:\
     Health checks on Render keep the ETL pipeline running smoothly, ensuring constant data availability.
 
+
+
 📦 Tech Stack
 -------------
 
@@ -83,25 +91,21 @@ This design ensures that your LinkedIn data is always ready for deep analysis an
 | **Dev Tools** | Nodemon, dotenv |
 | **Deployment** | Render (Free Tier) |
 
-🛠️ Setup & Installation
+
+
+Setup & Installation
 ------------------------
 
 1.  **Clone the Repository**:
 
-    bash
-
-    Copy code
-
     `git clone https://github.com/yourusername/duxsoup-etl.git
     cd duxsoup-etl`
 
+
 2.  **Install Dependencies**:
 
-    bash
-
-    Copy code
-
     `npm install`
+
 
 3.  **Configure Environment Variables**:\
     Create a `.env` file in the project root with the following variables:
@@ -109,18 +113,19 @@ This design ensures that your LinkedIn data is always ready for deep analysis an
     -   `MONGO_URI`: Your MongoDB Atlas connection string.
     -   `DUXSOUP_API_KEY`: API key for accessing DuxSoup data.
     -   Additional configuration settings as needed.
+
+
 4.  **Start the Application**:
 
-    bash
-
-    Copy code
-
     `npm start`
+
 
 5.  **Deploy on Render**:\
     The project is pre-configured for deployment on Render. Follow Render's documentation to deploy your instance and configure automatic health checks.
 
-🤝 Contributing
+
+
+Contributing
 ---------------
 
 Contributions are welcome! Feel free to fork the repository and submit a pull request. For questions, issues, or feature requests, please open an issue on GitHub or contact the maintainer.
