@@ -4,6 +4,13 @@ const scansController = require('./scansController');
 const logger = require('../utils/logger');
 
 class WebhookController {
+  constructor() {
+    // Bind methods to preserve 'this' context when used as callbacks
+    this.processDuxSoupWebhook = this.processDuxSoupWebhook.bind(this);
+    this.processVisitEvent = this.processVisitEvent.bind(this);
+    this.processScanEvent = this.processScanEvent.bind(this);
+  }
+
   /**
    * Process incoming webhook data from DuxSoup
    */
