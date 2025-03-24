@@ -18,11 +18,20 @@ class WebhookController {
     try {
       const webhookData = req.body;
       
-      // Log the full webhook data to help with debugging
+      // Enhanced logging of the full webhook data to help with debugging
       logger.info('Received webhook data from DuxSoup', { 
         endpoint: req.originalUrl,
         method: req.method,
-        data: webhookData
+        eventType: webhookData.type || webhookData.event || 'unknown',
+        dataKeys: webhookData.data ? Object.keys(webhookData.data) : 'no data'
+      });
+      
+      // Log a sample of the raw data to understand its structure
+      logger.info('Raw webhook payload sample', {
+        sample: webhookData.data ? 
+          JSON.stringify(webhookData.data).substring(0, 1000) + 
+          (JSON.stringify(webhookData.data).length > 1000 ? '...(truncated)' : '') 
+          : 'No data'
       });
 
       // Validate webhook data
@@ -79,7 +88,12 @@ class WebhookController {
         return;
       }
 
-      logger.info(`Processing visit ${event} for profile: ${data.id}`);
+      logger.info(`Processing visit ${event} for profile: ${data.id}`, {
+        availableFields: Object.keys(data),
+        hasPositions: data['Position-0-Company'] ? true : false,
+        hasSchools: data['School-0-Name'] ? true : false,
+        hasSkills: data['Skill-0'] ? true : false
+      });
       
       // Check if profile already exists
       const existingVisit = await Visit.findOne({ id: data.id });
@@ -124,7 +138,12 @@ class WebhookController {
         return;
       }
 
-      logger.info(`Processing scan data for profile: ${data.id}`);
+      logger.info(`Processing scan data for profile: ${data.id}`, {
+        availableFields: Object.keys(data),
+        hasPositions: data['Position-0-Company'] ? true : false,
+        hasSchools: data['School-0-Name'] ? true : false,
+        hasSkills: data['Skill-0'] ? true : false
+      });
       
       // Use the scansController to process scan data
       await scansController.processScans(data);
